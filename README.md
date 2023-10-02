@@ -13,6 +13,7 @@ Download and install Git for Windows
 ### Step 1) Start the SSH agent
 	
 	**Windows OpenSSH users** 
+
  ```
 	From a PowerShell, check if the SSH Agent is running using the Get-Service command. For example:
 	> Get-Service ssh-agent
@@ -31,18 +32,18 @@ Stopped  ssh-agent    OpenSSH Authentication Agent
 	> Get-Service -Name ssh-agent | Set-Service -StartupType Manual 
 	> or
 	> Get-Service -Name ssh-agent | Set-Service Automatic
-	```
+```
 	
 ### Step 2) Create SSH key pair
 	
 	To create an SSH key pair:
 	1. Open a terminal and navigate to your home or user directory using cd, for example:
-    ```
+
+ ```
     cd ~
-    ```
-	
+ ```
 	2. Generate a SSH key pair using ssh-keygen, such as:
-     ```
+```
      ssh-keygen -t ed25519 -b 4096 -C "{username@emaildomain.com}"
  
 	Where:
@@ -52,7 +53,7 @@ Stopped  ssh-agent    OpenSSH Authentication Agent
 	• {ssh-key-name}— the private key.
 	• {ssh-key-name}.pub— the public key.
 	These files will be stored in your user folder, such as C:\Users\<username>\.ssh\<ssh-key-name>.
-	```
+```
 
 ### Step 3) Add private key to SSH agent
 	To add the SSH key to your SSH agent (ssh-agent):
@@ -60,14 +61,14 @@ Stopped  ssh-agent    OpenSSH Authentication Agent
   ```
   ssh-add C:\Users\<usrname>\.ssh\{ssh-key-name}
 	e.g. ssh-add "C:\Users\Ajit\.ssh\id_ed25519"
-	```
+  ```
 ### Step 4) Add public key to GitLab
-	1) Copy key from the public key file (C:\Users\Ajit(SEED)\.ssh\id_ed25519.pub)
+	1) Copy key from the public key file (C:\Users\Ajit\.ssh\id_ed25519.pub)
 	2) Paste / Publish Public key into the GitLab (profile > preferences > ssh key > add key)
   3)   Download the GitLab Repo
-  ```
+```
 	# git clone <repo>
-	```
+```
 ### Step 5) Upload new codes
   1) copy new files into the repo downloaded
   2) commit new files:
