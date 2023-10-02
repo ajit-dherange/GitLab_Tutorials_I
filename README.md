@@ -1,6 +1,6 @@
 # GitLab Tutorials - 1
 
-## How to connect / clone GitLab Repo?
+## How to connect / clone GitLab Repo
 
 ### Pre-requisite: Git
 Download and install Git for Windows
@@ -21,9 +21,9 @@ The output should show the installed version of OpenSSH.
 	From a PowerShell, check if the SSH Agent is running using the Get-Service command. For example:
 	$  Get-Service ssh-agent
 
-	Status   Name         DisplayName
- ------   ----         -----------
-        Stopped  ssh-agent    OpenSSH Authentication Agent
+           Status   Name         DisplayName
+           ------   ----         -----------
+           Stopped  ssh-agent    OpenSSH Authentication Agent
 	
 	To start the agent:
 	$  Start-Service ssh-agent
