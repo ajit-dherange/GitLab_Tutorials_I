@@ -39,14 +39,14 @@ Download and install Git for Windows
 
 ### Step 2) Create SSH key pair
 	
-	To create an SSH key pair:
+To create an SSH key pair:
  
-	1. Open a terminal and navigate to your home or user directory using cd, for example:
-
+1. Open a terminal and navigate to your home or user directory using cd, for example:
 ```
     cd ~
 ```
-	2. Generate a SSH key pair using ssh-keygen, such as:
+
+2. Generate a SSH key pair using ssh-keygen, such as:
 ```
      ssh-keygen -t ed25519 -b 4096 -C "{username@emaildomain.com}"
  
@@ -76,9 +76,8 @@ Download and install Git for Windows
 ```
 
 ### Step 5) Upload new codes
-  1) copy new files into the repo downloaded
-  2) commit new files:
-  3) 
+1) copy new files into the repo downloaded
+2) commit new files:
 ```    
        $ cd  <repo>
        $ git status
@@ -88,10 +87,9 @@ Download and install Git for Windows
 ```
 
   3)
- 
- ``` 
+``` 
        $ git diff
        $ git add .  X x x x 
        $ git commit -m "message"
        $ git push
- ```
+```
