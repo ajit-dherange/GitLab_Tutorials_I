@@ -29,7 +29,7 @@ The output should show the installed version of OpenSSH.
 	$  Start-Service ssh-agent
 	
 	To check the service has been disabled  
-	$  Get-Service -Name ssh-agent | Select -StartupType
+	$  Get-Service -Name ssh-agent | Select -StartupType    #$  Get-Service -Name ssh-agent | Select -StartType
 	
 	To configure the SSH agent to start each time the device is started, use the Set-Service command, such as:
 	$  Get-Service -Name ssh-agent | Set-Service -StartupType Manual 
