@@ -1,0 +1,111 @@
+variables:
+  AWS_REGION: "us-east-2"
+  # for query results
+  ATHENA_S3_PATH: "s3://s3-athena-demo-out-tf-001/Output/"
+  DATABASE: "db-athena-demo-012"
+  #SQLQUERY1: "SELECT * FROM "db-athena-demo-008"."netflix" limit 10;"
+  S3_BUCKET: "s3-athena-demo-out-gl-006"
+
+image: amazonlinux:latest
+#image: amazon/aws-cli
+
+.aws-prep: &aws-prep
+  - mkdir -p ~/.aws
+  - echo [default] > ~/.aws/credentials
+  - echo AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
+  - echo AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
+  - cat ~/.aws/credentials
+  # - echo -e "[profile default]\nrole_arn=${ROLE_ARN}\nweb_identity_token_file=/tmp/web_identity_token" > ~/.aws/config
+  #- echo [default] > ~/.aws/config
+  #- echo AWS_DEFAULT_REGION="${Default_region_name}" >> ~/.aws/config
+  #- echo output=json >> ~/.aws/config
+  # - export AWS_REGION='us-east-2' 
+  #- cat ~/.aws/config
+  - yum update -y
+  - yum install -y aws-cli
+
+stages:
+  - validate
+  - create_s3
+  - create_glue_db
+  - run_query
+  - report
+
+sast:
+  stage: validate
+include:
+- template: Security/SAST.gitlab-ci.yml
+
+create-s3:
+  #image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  #image: amazonlinux:latest
+  before_script:
+    - *aws-prep
+    - aws --profile default sts get-caller-identity
+    - aws configure set region us-east-2
+    - aws configure get region
+    #- printenv | grep AWS
+    - aws s3 ls
+  stage: create_s3
+  when: manual
+  script:
+    - echo "Creating S3 Bucket $S3_BUCKET in the region $AWS_REGION ..."
+    - aws s3 mb s3://$S3_BUCKET
+    - aws s3 ls
+
+create-glue-database:
+  before_script:
+    - *aws-prep
+    - aws --profile default sts get-caller-identity
+    - aws configure set region us-east-2
+    - aws configure get region
+  stage: create_glue_db
+  when: manual
+  script:
+    - echo "Creating Glue Database $DATABASE ..."
+    - aws glue create-database --database-input "{\"Name\":\"$DATABASE\"}"
+    #- aws glue create-database --database-input "{\"$DATABASE\":\"tempdb\"}" --profile my_profile --endpoint https://glue.us-east-2.amazonaws.com
+    #- aws glue create-database --database-input "file://~/Desktop\new_database_name.json"
+    - aws glue get-database --name $DATABASE
+
+run_query:
+  stage: run_query
+  #image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  #image: amazon/aws-cli
+  #image: amazonlinux:latest
+  when: manual
+  before_script:
+    #- yum update -y
+    #- yum install -y aws-cli
+    - *aws-prep
+    - aws --profile default sts get-caller-identity
+    - aws configure set region us-east-2
+    - aws configure get region
+    #- aws s3 ls
+    #- aws s3 cp s3://s3-athena-demo-out-tf-001/test2.sql .
+    #- cp -chdir=./query/test.sql .
+    - ls -lrta
+    - cat test2.sql
+    - QUERY=$(cat test2.sql)
+    - echo $QUERY
+    #- echo "Create Glue database"
+    #- aws glue create-database --database-input "{\"db-athena-demo-011\":\"tempdb\"}" --profile my_profile --endpoint https://glue.us-east-2.amazonaws.com
+    - echo "Test Athena Connection"
+    - aws athena list-data-catalogs #--region ${AWS_REGION}
+  script:
+    - echo "This is my first GitLab Athena Query!"
+    #- echo query=${SQLQUERY}
+    #- echo database=${DATABASE}
+    #- echo S3Location=${ATHENA_S3_PATH}
+    #- echo "SELECT ALL FROM "db-athena-demo-008"."netflix" limit 10;" > test.sql
+    - aws athena start-query-execution --query-string "$QUERY" --query-execution-context Database=$DATABASE,Catalog=AwsDataCatalog --result-configuration OutputLocation=$ATHENA_S3_PATH
+    ###- aws athena start-query-execution --query-string "$QUERY" --query-execution-context Database=db-athena-demo-010,Catalog=AwsDataCatalog --result-configuration OutputLocation=s3://s3-athena-demo-out-tf-001/Output/
+    # aws athena start-query-execution --query-string "$SQLQUERY1" --query-execution-context Database=${DATABASE},Catalog=AwsDataCatalog --result-configuration OutputLocation=${ATHENA_S3_PATH}
+    #- aws athena start-query-execution --query-string ${SQLQUERY} --query-execution-context Database=${DATABASE},Catalog=AwsDataCatalog --result-configuration "OutputLocation=${ATHENA_S3_PATH}"
+    #- QUERY_ID=$(aws athena start-query-execution --query-string "SELECT * FROM "db-athena-demo-008"."netflix" --query-execution-context Database=${DATABASE},Catalog=AwsDataCatalog --result-configuration "OutputLocation=${ATHENA_S3_PATH}" | jq -r '.Query-Execution-id) - aws athena wait query-execution --query-execution-id $QUERY_ID
+    ###- aws athena get-query-execution --query-execution-id "xxxxxxxxxx"
+  only:
+    - main
+  after_script:
+    - unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY #AWS_SESSION_TOKEN
+

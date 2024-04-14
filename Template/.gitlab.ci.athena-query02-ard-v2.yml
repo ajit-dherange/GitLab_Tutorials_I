@@ -1,0 +1,122 @@
+variables:
+  AWS_REGION: "us-east-2"
+  # for query results
+  ATHENA_S3_PATH: "s3://s3-athena-demo-out-tf-001/Output/"
+  DATABASE: "db-athena-demo-012"
+  #SQLQUERY1: "SELECT * FROM "db-athena-demo-008"."netflix" limit 10;"
+  S3_BUCKET: "s3-athena-demo-out-gl-006"
+  ATHENA_S3_PATH_UAT: "s3://s3-athena-demo-out-tf-001/Output/"
+  DATABASE_UAT: "db-athena-demo-013_uat"
+
+image: amazonlinux:latest
+#image: amazon/aws-cli
+
+.aws-prep: &aws-prep
+  - mkdir -p ~/.aws
+  - echo [default] > ~/.aws/credentials
+  - echo AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
+  - echo AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
+  - cat ~/.aws/credentials
+  # - echo -e "[profile default]\nrole_arn=${ROLE_ARN}\nweb_identity_token_file=/tmp/web_identity_token" > ~/.aws/config
+  #- echo [default] > ~/.aws/config
+  #- echo AWS_DEFAULT_REGION="${Default_region_name}" >> ~/.aws/config
+  #- echo output=json >> ~/.aws/config
+  # - export AWS_REGION='us-east-2' 
+  #- cat ~/.aws/config
+  - yum update -y
+  - yum install -y aws-cli
+
+stages:
+  - validate
+  - create_s3
+  - create_glue_db
+  - run_query
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+# workflow:
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "merge_request_event"   # Run this job when merge event generated
+#     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+#       when: never
+#     - if: $CI_COMMIT_BRANCH
+    #- if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+
+sast:
+  stage: validate  
+include:
+- template: Security/SAST.gitlab-ci.yml
+  
+create-s3:
+  #image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  #image: amazonlinux:latest
+  stage: create_s3  
+  before_script:
+    - *aws-prep
+    - aws --profile default sts get-caller-identity
+    - aws configure set region us-east-2
+    - aws configure get region
+    #- printenv | grep AWS
+    - aws s3 ls
+  script:
+    - echo "Creating S3 Bucket $S3_BUCKET in the region $AWS_REGION ..."
+    ###- aws s3 mb s3://$S3_BUCKET
+    - aws s3 ls
+  when: manual
+  rules:
+    - if: $CI_COMMIT_TAG    # Run this job when a tag is created - bk
+  
+create-glue-database:
+  stage: create_glue_db  
+  before_script:
+    - *aws-prep
+    - aws --profile default sts get-caller-identity
+    - aws configure set region us-east-2
+    - aws configure get region
+  script:
+    - echo "Creating Glue Database $DATABASE ..."
+    ###- aws glue create-database --database-input "{\"Name\":\"$DATABASE\"}"
+    #- aws glue create-database --database-input "{\"$DATABASE\":\"tempdb\"}" --profile my_profile --endpoint https://glue.us-east-2.amazonaws.com
+    #- aws glue create-database --database-input "file://~/Desktop\new_database_name.json"
+    - aws glue get-database --name $DATABASE
+  when: manual
+  rules:
+    - if: $CI_COMMIT_TAG    # Run this job when a tag is created
+
+run_query:
+  stage: run_query
+  # rules: 
+  #   - if: $ENV == "uat" || $ENV == "dev"
+  before_script:    
+    - *aws-prep
+    - aws --profile default sts get-caller-identity
+    - aws configure set region us-east-2
+    - aws configure get region    
+    - ls -lrta
+    - cat ${SQL_FILE}
+    - QUERY=$(cat ${SQL_FILE})
+    - echo $QUERY
+    - echo "Test Athena Connection"
+    - aws athena list-data-catalogs #--region ${AWS_REGION}
+  script:
+    - echo "Running GitLab Athena Query in UAT...!!"
+    #- aws athena start-query-execution --query-string "$QUERY" --query-execution-context Database=$DATABASE_UAT,Catalog=AwsDataCatalog --result-configuration OutputLocation=$ATHENA_S3_PATH_UAT
+    - aws s3 ls $ATHENA_S3_PATH
+  when: manual
+  only:
+    # - main
+    - dev
+    - uat
+  # rules:
+  # - if: $CI_COMMIT_BRANCH == "main"
+  #   when: never
+    # - if: $CI_COMMIT_REF_NAME == "main"
+    # - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "uat"
+    # - when: manual
+  after_script:
+    - unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY #AWS_SESSION_TOKEN
