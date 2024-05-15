@@ -1,0 +1,90 @@
+You can use the AWS CLI to check if an AWS Glue database is present. The `aws glue get-database` command retrieves the definition of a specified database, and if the database does not exist, the command will return an error. Here’s how you can use this command:
+
+### AWS CLI Command
+
+```sh
+aws glue get-database --name your_database_name
+```
+
+If the database exists, the command will return information about the database. If it does not exist, it will return an error message indicating that the database could not be found.
+
+### Example
+
+```sh
+aws glue get-database --name my_test_database
+```
+
+### Handling the Command Programmatically
+
+You might want to use this command within a script to programmatically check for the database and handle the result. Here’s an example using a Bash script:
+
+```bash
+#!/bin/bash
+
+DATABASE_NAME="your_database_name"
+OUTPUT=$(aws glue get-database --name $DATABASE_NAME 2>&1)
+
+if [[ $OUTPUT == *"EntityNotFoundException"* ]]; then
+  echo "Database $DATABASE_NAME does not exist."
+  exit 1
+else
+  echo "Database $DATABASE_NAME exists."
+  exit 0
+fi
+```
+
+### Using AWS SDK for Python (Boto3)
+
+If you prefer to use a Python script with Boto3, here’s an example:
+
+```python
+import boto3
+from botocore.exceptions import ClientError
+
+def check_database_exists(database_name):
+    glue_client = boto3.client('glue')
+    
+    try:
+        glue_client.get_database(Name=database_name)
+        print(f"Database {database_name} exists.")
+        return True
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'EntityNotFoundException':
+            print(f"Database {database_name} does not exist.")
+            return False
+        else:
+            raise
+
+database_name = 'your_database_name'
+exists = check_database_exists(database_name)
+```
+
+### Integrating with a Pipeline
+
+To integrate this check into a CI/CD pipeline or a Step Functions state machine, you can use the script as part of a Lambda function or directly in a build/deployment script.
+
+#### Lambda Function Example
+
+Here's how you might set up an AWS Lambda function to perform this check:
+
+```python
+import boto3
+from botocore.exceptions import ClientError
+
+def lambda_handler(event, context):
+    database_name = event['database_name']
+    glue_client = boto3.client('glue')
+    
+    try:
+        glue_client.get_database(Name=database_name)
+        return {'database_exists': True}
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'EntityNotFoundException':
+            return {'database_exists': False}
+        else:
+            raise
+```
+
+This Lambda function can then be used in an AWS Step Functions state machine to conditionally execute further actions based on the existence of the Glue database, as outlined in the previous response.
+
+By using the AWS CLI, Boto3, or AWS Lambda, you can effectively check the presence of an AWS Glue database and integrate this check into your deployment pipeline.
