@@ -2,7 +2,7 @@ You can use the AWS CLI to check if an AWS Glue database is present. The `aws gl
 
 ### AWS CLI Command
 
-```sh
+```
 aws glue get-database --name your_database_name
 ```
 
@@ -10,7 +10,7 @@ If the database exists, the command will return information about the database. 
 
 ### Example
 
-```sh
+```
 aws glue get-database --name my_test_database
 ```
 
@@ -18,7 +18,7 @@ aws glue get-database --name my_test_database
 
 You might want to use this command within a script to programmatically check for the database and handle the result. Here’s an example using a Bash script:
 
-```bash
+```
 #!/bin/bash
 
 DATABASE_NAME="your_database_name"
@@ -37,7 +37,7 @@ fi
 
 If you prefer to use a Python script with Boto3, here’s an example:
 
-```python
+```
 import boto3
 from botocore.exceptions import ClientError
 
@@ -67,7 +67,7 @@ To integrate this check into a CI/CD pipeline or a Step Functions state machine,
 
 Here's how you might set up an AWS Lambda function to perform this check:
 
-```python
+```
 import boto3
 from botocore.exceptions import ClientError
 
