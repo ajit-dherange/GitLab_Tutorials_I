@@ -1,9 +1,9 @@
 # GitLab Tutorials - 1
 
-## How to connect / clone GitLab Repo
+## How to connect / clone GitLab Repo (Using SSH Key)
 
 ### Pre-requisite: Git
-Download and install Git for Windows
+Download and install Git Bash for Windows
 
 1) Download and run the installer from https://gitforwindows.org/. The options at each step should be suitable. When you reach the step about choosing the SSH executable, ensure the bundled OpenSSH is selected.
  
@@ -93,3 +93,35 @@ Run the following command, replacing the {ssh-key-name}with the name of the priv
        $ git commit -m "message"
        $ git push
 ```
+
+## How to connect / clone GitLab Repo (Using GPG Key)
+
+### Pre-requisite: Git
+Download and install Git Bash for Windows
+
+1) Download and run the installer from https://gitforwindows.org/. The options at each step should be suitable. When you reach the step about choosing the SSH executable, ensure the bundled OpenSSH is selected.
+ 
+2) Once the installation is complete, open Git Bash from the Start menu.
+ 
+3) In the terminal, check that OpenSSH has been successfully installed by running the following command:
+$ ssh -V
+The output should show the installed version of OpenSSH.
+
+### Step 1) Get GitLab PAT
+	
+**Login to GitLab**
+**For your user name, go to the top right hand corner & click on your avatar**
+**under “Edit profile” / “Account”, your user name is the one after “Path” (This user name will be used to connect to GitLab using Git and to create GPG key for your so copy it)**
+**Under “User Settings”, left navigation menu “Access Token” on left pane and click on "Add new token" on right pane**
+**select expiry date and options Read Repository, Write Repository and then click on “create personal access token”**
+**Afterwhich, save the token generated somewhere safe. You will need to use this token as your password, together with your user name, when accessing the GitLab repo**
+
+### Step 2) Generate a GPG key
+
+** open up a “git bash” command prompt Enter command “gpg –full-generate-key” to generate a GPG key, and follow the steps**
+**For “Real name” enter the name which we copied in First step and “Email address” enter email address used for GitLab, other values can select as default **
+**You will also be asked to enter a “passphrase” during the key generation process. Please save this “passphrase” somewhere as it is needed for commits**
+
+
+
+
