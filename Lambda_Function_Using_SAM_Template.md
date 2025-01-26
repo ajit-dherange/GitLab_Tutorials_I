@@ -58,25 +58,25 @@ def lambda_handler(event, context):
 ### Step 3: Initialize SAM Project (If Needed)
 
 If you haven’t already set up a SAM project, you can initialize one by running:
-
+```
 $ sam init
-
+```
 Follow the prompts to set up your project. You can select a runtime (e.g., Python) and a template (e.g., Hello World).
 
 ### Step 4: Build Your SAM Application
 
 Before deploying, you need to build the application with the SAM CLI:
-
+```
 $ sam build
-
+```
 This will package your Lambda function and prepare it for deployment.
 
 ### Step 5: Deploy Your SAM Application
 
 Now you can deploy your application to AWS:
-
+```
 $ sam deploy --guided
-
+```
 This command will ask you a few questions about your deployment (e.g., stack name, AWS region, whether to save these preferences for future use).
 
 The deploy command does the following:
@@ -87,9 +87,9 @@ The deploy command does the following:
 
 ### Step 6: Verify the Deployment
 Once the deployment is complete, you can verify that the Lambda function has been created by checking the AWS Console or by invoking the Lambda function using the AWS CLI:
-
+```
 $ aws lambda invoke --function-name MyLambdaFunction output.txt
-
+```
 This will invoke the Lambda function and save the result to output.txt.
 
 That’s the basic flow to create and deploy a Lambda function from a template.yml file using AWS SAM. Let me know if you need more details on any of the steps!
