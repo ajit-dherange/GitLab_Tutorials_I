@@ -9,3 +9,6 @@ template.yaml can be replaced with your specific file name.
 The output starts at Configuring SAM deploy.
 
 In the output, ENTER and y indicate replaceable values that you provide.
+
+
+ref: https://github.com/aws/aws-sam-cli
