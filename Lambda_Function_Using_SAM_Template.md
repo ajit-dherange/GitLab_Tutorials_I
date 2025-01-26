@@ -10,9 +10,22 @@ The output starts at Configuring SAM deploy.
 
 In the output, ENTER and y indicate replaceable values that you provide.
 
+### Pre-requisite:
 
-ref: https://github.com/aws/aws-sam-cli
+1) AWS SAM-CLI ref: https://github.com/aws/aws-sam-cli
+```
+sam --version
+```
+2) AWS-CLI ref: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+```
+aws --version
+```
+3) Python ref: https://www.digitalocean.com/community/tutorials/install-python-windows-10
+```
+python --version or python3 --version
 
+pip --version
+```
 
 **To create and deploy a Lambda function using AWS SAM (Serverless Application Model) from a template.yml file, follow these steps:**
 
