@@ -136,7 +136,7 @@ tag:* (for resource tagging)
 9) Update your Python runtime to 3.8 or later, as 3.7 is being deprecated.
 
 # Lambda Function Using SAM Template file (CI/CD)
-### Here's a corrected script that should address these issues:
+### Here's the script for automatation to create lambda function:
 ```
 #!/bin/bash
 
