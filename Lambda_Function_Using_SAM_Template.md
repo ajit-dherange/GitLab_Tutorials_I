@@ -1,4 +1,4 @@
-# Lambda Function Using SAM Template file
+# Lambda Function Using SAM Template file (manual)
 
 **sam deploy --guided --template template.yaml** is the command you enter at the command line.
 
@@ -135,6 +135,7 @@ tag:* (for resource tagging)
    
 9) Update your Python runtime to 3.8 or later, as 3.7 is being deprecated.
 
+# Lambda Function Using SAM Template file (CI/CD)
 ### Here's a corrected script that should address these issues:
 ```
 #!/bin/bash
