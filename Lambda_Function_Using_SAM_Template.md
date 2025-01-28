@@ -106,3 +106,68 @@ $ aws lambda invoke --function-name MyLambdaFunction output.txt
 This will invoke the Lambda function and save the result to output.txt.
 
 That’s the basic flow to create and deploy a Lambda function from a template.yml file using AWS SAM. Let me know if you need more details on any of the steps!
+
+
+## Key recommendations:
+
+1) you can remove the sam init step. You should have your template.yml file prepared beforehand with the correct Lambda function configuration.
+
+2) Use the $TEMPLATE_FILE variable instead of hardcoding template.yaml.
+
+3) Remove the --guided flag from sam deploy to avoid interactive prompts.
+
+4) Add the --no-confirm-changeset and --no-fail-on-empty-changeset flags to sam deploy for non-interactive deployment.
+
+5) Use the same sam deploy command for both creating and updating the function.
+
+6) Ensure that the IAM role used for deployment has the following permissions:
+```
+iam:CreateRole
+iam:PutRolePolicy
+iam:AttachRolePolicy
+cloudformation:*
+s3:*
+lambda:*
+apigateway:*
+tag:* (for resource tagging)
+```
+7) If you want to use a pre-existing IAM role for your Lambda function instead of creating a new one, modify your template.yml to specify the role ARN:
+   
+9) Update your Python runtime to 3.8 or later, as 3.7 is being deprecated.
+
+### Here's a corrected script that should address these issues:
+```
+#!/bin/bash
+
+set -e  # Exit immediately if a command exits with a non-zero status.
+
+echo "Region: $REGION"
+echo "Stack Name: $STACK_NAME"
+echo "Bucket Name: $BUCKET_NAME"
+echo "Template File: $TEMPLATE_FILE"
+
+if aws lambda get-function --function-name $FUNCTION_NAME &>/dev/null; then 
+    echo "Lambda function exists. Updating the function."
+    sam deploy --stack-name $STACK_NAME \
+               --s3-bucket $BUCKET_NAME \
+               --region $REGION \
+               --capabilities CAPABILITY_IAM \
+               --template-file $TEMPLATE_FILE \
+               --no-confirm-changeset \
+               --no-fail-on-empty-changeset
+else
+    echo "Lambda function does not exist, creating now..."
+    sam build --template-file $TEMPLATE_FILE
+    echo "SAM build completed!"
+    
+    sam deploy --stack-name $STACK_NAME \
+               --s3-bucket $BUCKET_NAME \
+               --region $REGION \
+               --capabilities CAPABILITY_IAM \
+               --template-file $TEMPLATE_FILE \
+               --no-confirm-changeset \
+               --no-fail-on-empty-changeset
+fi
+
+echo "SAM deploy completed!"
+```
