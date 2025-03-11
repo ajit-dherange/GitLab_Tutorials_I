@@ -123,5 +123,5 @@ The output should show the installed version of OpenSSH.
 **You will also be asked to enter a “passphrase” during the key generation process. Please save this “passphrase” somewhere as it is needed for commits**
 
 
-
+ref: https://docs.gitlab.com/user/project/repository/signed_commits/gpg/#sign-commits-with-gpg
 
